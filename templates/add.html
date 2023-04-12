@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="{{ url_for("api") }}" method="post" class="text-center">
+    <div class="form-outline mt-3">
+        <input type="text" id="form1" class="form-control" required/>
+        <label class="form-label" for="form1">食材</label>
+    </div>
+    <div class="form-outline date-picker mt-3">
+      <input type="date" class="form-control" id="exampleDatepicker1" required>
+      <label for="exampleDatepicker1" class="form-label">賞味期限</label>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">追加</button>
+    </form>
+{% endblock %}
