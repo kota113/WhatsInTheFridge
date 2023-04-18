@@ -1,6 +1,8 @@
-from flask import Flask, session, request, render_template, url_for, redirect
 import dataset
-import requests, random, string
+import random
+import requests
+import string
+from flask import Flask, session, request, render_template, url_for, redirect
 
 app = Flask(__name__)
 app.secret_key = "zJ2BRqQSf2Gd2MCMULJ7LzrFbhN63xKR"
