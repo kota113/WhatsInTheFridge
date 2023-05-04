@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="{{ url_for("api") }}" method="post" class="text-center">
+        <label class="form-label">追加するには、ユニット番号を登録してください</label>
+        <div class="input-group flex-nowrap form-outline mt-3">
+            <span class="input-group-text" id="addon-wrapping">R</span>
+            <input type="number" id="form1" class="form-control" aria-describedby="addon-wrapping" required/>
+            <label class="form-label" for="form1">ユニット番号</label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">設定</button>
+    </form>
+{% endblock %}

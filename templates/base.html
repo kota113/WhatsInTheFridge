@@ -14,8 +14,8 @@
 />
 <!-- MDB -->
 <link
-  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
-  rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
+        rel="stylesheet"
 />
 <head>
     <meta charset="UTF-8">
@@ -23,31 +23,148 @@
 </head>
 <body>
 <nav class="navbar navbar-expand navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#"><img src="/static/img/icon.png"></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for("index") }}">冷蔵庫</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for("add") }}">追加</a>
-        </li>
-      </ul>
-    </div>
-  </div>
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><img src="/static/img/icon.png"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == "index" %}active{% endif %}"
+                       href="{{ url_for("index") }}">冷蔵庫</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == "add" %}active{% endif %}" href="{{ url_for("add") }}">追加</a>
+                </li>
+            </ul>
+        </div>
+        <!-- User icon -->
+        {% if "line_id" in session %}
+            <div class="d-flex ms-auto dropdown">
+                <a
+                        class="dropdown-toggle d-flex align-items-center hidden-arrow"
+                        href="#"
+                        id="navbarDropdownMenuAvatar"
+                        role="button"
+                        data-mdb-toggle="dropdown"
+                        aria-expanded="false"
+                >
+                    <i class="fas fa-user" style="color: black"></i>
+                </a>
+                <ul
+                        class="dropdown-menu dropdown-menu-end"
+                        aria-labelledby="navbarDropdownMenuAvatar"
+                >
+                    <li>
+                        <a class="dropdown-item" data-mdb-toggle="modal"
+                           data-mdb-target="#unitSettingModal">ユニット設定</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for("logout") }}">ログアウト</a>
+                    </li>
+                </ul>
+            </div>
+            </div>
+            </div>
+        {% else %}
+            <div class="d-flex ms-auto">
+                <a class="d-flex align-items-center" href="{{ url_for("login") }}" aria-expanded="false">
+                    <i class="fas fa-arrow-right-to-bracket" style="color: black"></i>
+                </a>
+            </div>
+        {% endif %}
 </nav>
 <div class="container">
-{% block content %}
-{% endblock %}
+    <!-- Modal -->
+    <div class="modal fade" id="unitSettingModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="unitNumberForm" action="{{ url_for("api") }}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">{% if session["line_id"] and session["room"] %}
+                            ユニット番号を編集{% else %}初期設定{% endif %}</h5>
+                        {% if session["line_id"] and session["room"] %}
+                            <button type="button" class="btn-close" data-mdb-dismiss="modal"
+                                    aria-label="Close"></button>
+                        {% endif %}
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label">食品を追加するには、自分のユニット番号を登録してください</label>
+                        <div class="input-group flex-nowrap form-outline mt-3">
+                            <span class="input-group-text" id="addon-wrapping">R</span>
+                            <input type="number" id="form1" class="form-control" aria-describedby="addon-wrapping"
+                                   placeholder="
+
+                                           {% if session["line_id"] and session["room"] %}{{ session["room"] }}{% endif %}"
+                                   required min="100" max="999"/>
+                            {% if session["line_id"] and not session["room"] %}
+                                <label class="form-label" for="form1">ユニット番号</label>{% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {% if session["line_id"] and session["room"] %}
+                            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">閉じる</button>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary" href="{{ url_for("logout") }}">ログアウト
+                            </button>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary">設定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% block content %}
+    {% endblock %}
 </div>
 </body>
 <!-- MDB -->
 <script
-  type="text/javascript"
-  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"
+        type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"
 ></script>
+<script type="text/javascript">
+    {% if session["line_id"] and not session["room"] %}
+        document.addEventListener('DOMContentLoaded', function () {
+            const unclosableModal = new mdb.Modal(document.getElementById('unitSettingModal'), {
+                backdrop: "static", // Disable closing by clicking outside
+                keyboard: false, // Disable closing by pressing the Escape key
+            });
+            unclosableModal.show();
+        })
+    {% endif %}
+
+    document.getElementById('unitNumberForm').addEventListener('submit', function (event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+
+        submitForm();
+    });
+
+    async function submitForm() {
+        // Get the form element.
+        const form = document.getElementById("unitNumberForm");
+
+        // Send the form data to the server.
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: new FormData(form),
+        });
+
+        // Check the response status code.
+        if (response.status === 200) {
+            // The request was successful.
+            // Do something with the response data.
+            const data = await response.json();
+            location.reload();
+        } else {
+            // The request failed.
+            // Handle the error.
+            console.log("Request failed with status code: " + response.status);
+        }
+    }
+
+</script>
 </html>
